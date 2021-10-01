@@ -22,6 +22,8 @@ services:
     ports: 
       - 9200:9200
       - 9300:9300
+    networks:
+      - ext
 
   logstage:
     container_name: logstage
@@ -29,6 +31,8 @@ services:
     restart: always
     volumes: 
       - $PWD/logstage/pipeline:/usr/share/logstage/pipeline # volumen para guardar los pipelines de la configuracion
+    networks:
+      - ext
 
   kibana:
     container_name: kibana
@@ -36,6 +40,8 @@ services:
     restart: always
     ports: 
       - 5601:5601
+    networks:
+      - ext
 
 volumes:
   elasticsearchdata:
@@ -56,3 +62,6 @@ volumes:
       type: nfs
       device: ":/volumes/elasticsearch/logs"
       o: "addr=${NFSSERVER},vers=4,rw"
+
+networks:
+  ext:      
