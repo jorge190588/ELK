@@ -9,6 +9,10 @@ services:
       - bootstrap.memory_lock=true        # blocquea el limite de uso de memoria
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"  # ES_JAVA_OPTS anula la configuracion por defecto de
       - discovery.type=single-node
+    volumes:
+      - elasticsearchdata:/usr/share/elasticsearch/data
+      - elasticsearchconfig:/usr/share/elasticsearch/config
+      - elasticsearchlogs:/usr/share/elasticsearch/logs
     ulimits: 
       memlock:      # esta configuración indica que no tendra liminte 
         soft: -1    # ni minimo ni maximo de memoria
@@ -32,3 +36,23 @@ services:
     restart: always
     ports: 
       - 5601:5601
+
+volumes:
+  elasticsearchdata:
+    driver: local
+    driver_opts:
+      type: nfs
+      device: ":/volumes/elasticsearch/data"
+      o: "addr=${NFSSERVER},vers=4,rw"
+  elasticsearchconfig:
+    driver: local
+    driver_opts:
+      type: nfs
+      device: ":/volumes/elasticsearch/config"
+      o: "addr=${NFSSERVER},vers=4,rw"
+  elasticsearchlogs:
+    driver: local
+    driver_opts:
+      type: nfs
+      device: ":/volumes/elasticsearch/logs"
+      o: "addr=${NFSSERVER},vers=4,rw"
