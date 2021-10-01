@@ -1,0 +1,34 @@
+version: '3.7'
+
+services: 
+  elasticsearch:
+    container_name: elasticsearch
+    image: elasticsearch:7.14.0
+    restart: always
+    environment: 
+      - bootstrap.memory_lock=true        # blocquea el limite de uso de memoria
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"  # ES_JAVA_OPTS anula la configuracion por defecto de
+      - discovery.type=single-node
+    ulimits: 
+      memlock:      # esta configuración indica que no tendra liminte 
+        soft: -1    # ni minimo ni maximo de memoria
+        hard: -1    #
+    volumes: 
+      - $PWD/elasticsearch/data:/usr/share/elasticsearch/data # volumen para evitar perder las configuraciones ni la informacion
+    ports: 
+      - 9200:9200
+      - 9300:9300
+
+  logstage:
+    container_name: logstage
+    image: logstash:7.14.0
+    restart: always
+    volumes: 
+      - $PWD/logstage/pipeline:/usr/share/logstage/pipeline # volumen para guardar los pipelines de la configuracion
+
+  kibana:
+    container_name: kibana
+    image: kibana:7.14.0
+    restart: always
+    ports: 
+      - 5601:5601
