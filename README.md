@@ -31,3 +31,37 @@ Five step: run the docker-compose file
 docker-compose up -d
 ```
 ## Install filebeat
+
+first step: pull image of filebeat 7.14.0
+
+```sh
+docker pull docker.elastic.co/beats/filebeat:7.14.0
+```
+second step: create filebeat folder
+
+```sh
+mkdir filebeat
+cd filebeat
+```
+
+third step: copy filebeat.yml and nginx.yml to filebeat folder
+
+fourth step: run container of preconfiguration
+```sh
+docker run \
+docker.elastic.co/beats/filebeat:7.14.0 \
+setup -E setup.kibana.host=ip_kibana:5601 \
+-E output.elasticsearch.hosts=["ip_elasticsearch:9200"]
+```
+
+fifth step: copy log folders inside the container
+ ```sh
+ docker run -d \
+  --name=filebeat \
+  --user=root \
+  --volume="$(pwd)/filebeat.yml:/usr/sahre/filebeat/filebeat.yml"\
+  --volume="$(pwd)/nginx.yml:/usr/sahre/filebeat/modules.d/nginx.yml"\
+  --volume="/var/log/nginx:/var/log/nginx" \
+  docker.elastic.co/beats/filebeat:7.14.0 filebeat -e -strict.perms=false \
+  -E output.elasticsearch.hosts=["ip_elasticsearch:9200"] 
+ ```
