@@ -3,15 +3,12 @@ version: '3.7'
 services: 
   elasticsearch:
     container_name: elasticsearch
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.2.0
+    image: elasticsearch:7.14.0
     restart: always
     environment: 
-      - "ES_JAVA_OPTS=-Xms7g -Xmx7g"
+      - bootstrap.memory_lock=true        # bloquea el limite de uso de memoria
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"  # ES_JAVA_OPTS anula la configuracion por defecto de
       - discovery.type=single-node
-    volumes:
-      - elasticsearchdata:/usr/share/elasticsearch/data
-      - elasticsearchconfig:/usr/share/elasticsearch/config
-      - elasticsearchlogs:/usr/share/elasticsearch/logs
     ulimits: 
       memlock:      # esta configuración indica que no tendra liminte 
         soft: -1    # ni minimo ni maximo de memoria
@@ -21,8 +18,6 @@ services:
     ports: 
       - 9200:9200
       - 9300:9300
-    networks:
-      - ext
 
   logstage:
     container_name: logstage
@@ -30,8 +25,6 @@ services:
     restart: always
     volumes: 
       - $PWD/logstage/pipeline:/usr/share/logstage/pipeline # volumen para guardar los pipelines de la configuracion
-    networks:
-      - ext
 
   kibana:
     container_name: kibana
@@ -39,28 +32,3 @@ services:
     restart: always
     ports: 
       - 5601:5601
-    networks:
-      - ext
-
-volumes:
-  elasticsearchdata:
-    driver: local
-    driver_opts:
-      type: nfs
-      device: ":/volumes/elasticsearch/data"
-      o: "addr=${NFSSERVER},vers=4,rw"
-  elasticsearchconfig:
-    driver: local
-    driver_opts:
-      type: nfs
-      device: ":/volumes/elasticsearch/config"
-      o: "addr=${NFSSERVER},vers=4,rw"
-  elasticsearchlogs:
-    driver: local
-    driver_opts:
-      type: nfs
-      device: ":/volumes/elasticsearch/logs"
-      o: "addr=${NFSSERVER},vers=4,rw"
-
-networks:
-  ext:      
