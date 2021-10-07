@@ -1,0 +1,13 @@
+version: "3.7"
+
+services:
+  filebeat:
+    container_name: filebeat_NGINX
+    image: docker.elastic.co/beats/filebeat:7.14.0
+    restart: always
+    command: filebeat -e -strict.perms=false
+    user: root
+    volumes:
+      - $PWD/filebeat.yml:/usr/share/filebeat/filebeat.yml
+      - $PWD/nginx.yml:/usr/share/filebeat/modules.d/nginx.yml
+      - /var/log/nginx:/var/log/nginx

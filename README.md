@@ -20,12 +20,7 @@ mkdir logstage
 mkdir logstage/pipeline
 ```
 
-Four step: install JDK
-```sh
-sudo apt-get install openjdk-11jre-headless
-```
-
-Five step: run the docker-compose file
+Fourth step: run the docker-compose file
 
 ```sh
 docker-compose up -d
@@ -44,24 +39,20 @@ mkdir filebeat
 cd filebeat
 ```
 
-third step: copy filebeat.yml and nginx.yml to filebeat folder
+third step: copy docker-filebeat.yml, filebeat.yml and nginx.yml to filebeat folder
 
-fourth step: run container of preconfiguration
-```sh
-docker run \
-docker.elastic.co/beats/filebeat:7.14.0 \
-setup -E setup.kibana.host=ip_kibana:5601 \
--E output.elasticsearch.hosts=["ip_elasticsearch:9200"]
+fourth step: modify the file filebeat.yml 
+look for this configuration and indicate the IP of the monitoring server
+  ```sh
+  setup.kibana:
+  host: "ip_kibana:5601"
+
+  output.elasticsearch:
+  hosts: ["ip_elasticsearch:9200"]
 ```
 
-fifth step: copy log folders inside the container
+
+fifth step: run the docker-compose file of filebeat in monitoring server
  ```sh
- docker run -d \
-  --name=filebeat \
-  --user=root \
-  --volume="$(pwd)/filebeat.yml:/usr/sahre/filebeat/filebeat.yml"\
-  --volume="$(pwd)/nginx.yml:/usr/sahre/filebeat/modules.d/nginx.yml"\
-  --volume="/var/log/nginx:/var/log/nginx" \
-  docker.elastic.co/beats/filebeat:7.14.0 filebeat -e -strict.perms=false \
-  -E output.elasticsearch.hosts=["ip_elasticsearch:9200"] 
+docker-compose -f docker-filebeat.yml up -d
  ```
